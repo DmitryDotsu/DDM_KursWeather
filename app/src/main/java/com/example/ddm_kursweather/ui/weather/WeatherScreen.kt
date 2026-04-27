@@ -13,11 +13,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ddm_kursweather.data.api.RetrofitClient
 import com.example.ddm_kursweather.data.models.CurrentWeather
 import com.example.ddm_kursweather.data.repository.WeatherRepositoryImpl
+import com.example.ddm_kursweather.BuildConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherScreen() {
-    val apiKey = "3ZiiAKlxu3NYE8MT0jMx4NkOduayrgF2rzJSeqXg"
+    val apiKey = BuildConfig.NINJAS_API_KEY
 
     var debugMessage by remember { mutableStateOf("") }
 

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    // API Ninjas (с ключом в заголовке)
     private const val NINJAS_BASE_URL = "https://api.api-ninjas.com/v1/"
 
     fun getNinjasApi(apiKey: String): NinjasApiService {
@@ -34,7 +33,6 @@ object RetrofitClient {
             .create(NinjasApiService::class.java)
     }
 
-    // Open-Meteo (без ключа)
     private const val OPEN_METEO_BASE_URL = "https://api.open-meteo.com/"
 
     fun getOpenMeteoApi(): OpenMeteoApiService {

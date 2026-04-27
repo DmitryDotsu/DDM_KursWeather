@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -8,7 +11,10 @@ android {
     compileSdk {
         version = release(36)
     }
-
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "com.example.ddm_kursweather"
         minSdk = 24
@@ -17,7 +23,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val secretsFile = rootProject.file("secrets.properties")
+        val properties = Properties()
+        if (secretsFile.exists()) {
+            properties.load(FileInputStream(secretsFile))
+        }
+
+        val ninjasApiKey = properties.getProperty("NINJAS_API_KEY") ?: ""
+        buildConfigField("String", "NINJAS_API_KEY", "\"$ninjasApiKey\"")
     }
+
 
     buildTypes {
         release {
@@ -32,9 +47,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    buildFeatures {
-        compose = true
-    }
+
 }
 
 dependencies {
