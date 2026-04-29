@@ -1,8 +1,10 @@
 package com.example.ddm_kursweather.data.models
 
+import com.google.gson.annotations.SerializedName
+
 data class WeatherResponse(
-    val current_weather: CurrentWeather,
-    val hourly: Hourly? = null
+    @SerializedName("current_weather")
+    val currentWeather: CurrentWeather
 )
 
 data class CurrentWeather(
@@ -11,9 +13,4 @@ data class CurrentWeather(
     val winddirection: Double,
     val weathercode: Int,
     val time: String
-)
-
-data class Hourly(
-    val time: List<String>,
-    val temperature_2m: List<Double>
 )

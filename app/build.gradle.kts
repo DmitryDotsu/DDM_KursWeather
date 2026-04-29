@@ -23,14 +23,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        val secretsFile = rootProject.file("secrets.properties")
-        val properties = Properties()
-        if (secretsFile.exists()) {
-            properties.load(FileInputStream(secretsFile))
-        }
 
-        val ninjasApiKey = properties.getProperty("NINJAS_API_KEY") ?: ""
-        buildConfigField("String", "NINJAS_API_KEY", "\"$ninjasApiKey\"")
     }
 
 

@@ -1,8 +1,8 @@
 package com.example.ddm_kursweather.data.models
 
-data class CityResponse(
+data class CityInfo(
     val name: String,
+    val fullName: String,
     val latitude: Double,
-    val longitude: Double,
-    val country: String
+    val longitude: Double
 )

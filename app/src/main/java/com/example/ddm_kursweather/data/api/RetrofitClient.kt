@@ -8,16 +8,11 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val NINJAS_BASE_URL = "https://api.api-ninjas.com/v1/"
+    // Open-Meteo Geocoding API (понимает любой язык)
+    private const val GEOCODING_BASE_URL = "https://geocoding-api.open-meteo.com/"
 
-    fun getNinjasApi(apiKey: String): NinjasApiService {
+    fun getGeocodingApi(): GeocodingApiService {
         val client = OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .header("X-Api-Key", apiKey)
-                    .build()
-                chain.proceed(request)
-            }
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
@@ -26,13 +21,14 @@ object RetrofitClient {
             .build()
 
         return Retrofit.Builder()
-            .baseUrl(NINJAS_BASE_URL)
+            .baseUrl(GEOCODING_BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(NinjasApiService::class.java)
+            .create(GeocodingApiService::class.java)
     }
 
+    // Open-Meteo Weather API (без ключа)
     private const val OPEN_METEO_BASE_URL = "https://api.open-meteo.com/"
 
     fun getOpenMeteoApi(): OpenMeteoApiService {

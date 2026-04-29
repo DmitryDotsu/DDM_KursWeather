@@ -12,19 +12,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ddm_kursweather.data.api.RetrofitClient
 import com.example.ddm_kursweather.data.models.CurrentWeather
+import com.example.ddm_kursweather.data.models.CityInfo
 import com.example.ddm_kursweather.data.repository.WeatherRepositoryImpl
-import com.example.ddm_kursweather.BuildConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherScreen() {
-    val apiKey = BuildConfig.NINJAS_API_KEY
-
-    var debugMessage by remember { mutableStateOf("") }
-
-    val ninjasApi = RetrofitClient.getNinjasApi(apiKey)
+    val geocodingApi = RetrofitClient.getGeocodingApi()
     val openMeteoApi = RetrofitClient.getOpenMeteoApi()
-    val repository = WeatherRepositoryImpl(ninjasApi, openMeteoApi)
+    val repository = WeatherRepositoryImpl(geocodingApi, openMeteoApi)
 
     val viewModel: WeatherViewModel = viewModel(
         factory = WeatherViewModelFactory(repository)
@@ -45,7 +41,6 @@ fun WeatherScreen() {
             value = textFieldValue,
             onValueChange = {
                 textFieldValue = it
-                debugMessage = "Поиск: $it"
                 viewModel.searchCity(it)
                 showSuggestions = it.isNotEmpty()
             },
@@ -53,16 +48,6 @@ fun WeatherScreen() {
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        if (debugMessage.isNotEmpty()) {
-            Text(
-                text = debugMessage,
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -74,14 +59,26 @@ fun WeatherScreen() {
                     items(searchResults) { city ->
                         TextButton(
                             onClick = {
-                                textFieldValue = city
+                                textFieldValue = city.name
                                 showSuggestions = false
-                                debugMessage = "Загрузка погоды для: $city"
                                 viewModel.loadWeather(city)
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(city, modifier = Modifier.fillMaxWidth())
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    text = city.name,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = city.fullName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
@@ -109,17 +106,11 @@ fun WeatherScreen() {
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     )
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "❌ Ошибка: ${state.message}",
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(
-                            text = "Проверьте интернет и API ключ",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
+                    Text(
+                        text = "❌ ${state.message}",
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
             WeatherUiState.Initial -> {
@@ -127,7 +118,7 @@ fun WeatherScreen() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "🌤️ Введите название города для поиска погоды",
+                        text = "🌍 Введите название города на любом языке",
                         modifier = Modifier.padding(16.dp)
                     )
                 }
