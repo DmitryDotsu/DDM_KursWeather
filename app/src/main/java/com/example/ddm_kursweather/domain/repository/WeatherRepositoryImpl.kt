@@ -4,6 +4,8 @@ import com.example.ddm_kursweather.data.api.GeocodingApiService
 import com.example.ddm_kursweather.data.api.OpenMeteoApiService
 import com.example.ddm_kursweather.data.api.GeocodingResult
 import com.example.ddm_kursweather.data.api.isCapital
+import com.example.ddm_kursweather.data.api.isRegionalCenter
+import com.example.ddm_kursweather.data.api.getAdminLevelIcon
 import com.example.ddm_kursweather.data.models.CurrentWeather
 import com.example.ddm_kursweather.data.models.CityInfo
 import com.example.ddm_kursweather.domain.repository.WeatherRepository
@@ -20,6 +22,14 @@ class WeatherRepositoryImpl(
         "CA", "AU", "BR", "IN", "MX"
     )
 
+    // Приоритетные страны (для сортировки)
+    private val priorityCountries = listOf("RU", "BY", "KZ", "UA")
+
+    // Тут косяк в базе Опен-Метео, Пермь сохранена как Молотов *Подменим
+    private val knownCityMapping = mapOf(
+        "Молотов" to "Пермь"
+    )
+
     override suspend fun searchCity(query: String): Result<List<CityInfo>> {
         return try {
             if (query.length < 2) {
@@ -28,7 +38,7 @@ class WeatherRepositoryImpl(
 
             val response = geocodingApi.searchLocation(
                 name = query,
-                count = 40,
+                count = 50,
                 language = "ru"
             )
 
@@ -40,45 +50,71 @@ class WeatherRepositoryImpl(
 
             // Сортируем по приоритетам
             val sortedResults = allowedResults.sortedWith { a, b ->
-                // Приоритет 1: Столицы
+
+                // Приоритет 1: Города из приоритетных стран (RU, BY, KZ, UA) - выше всех
+                val aPriorityCountry = if (priorityCountries.contains(a.countryCode)) 1 else 2
+                val bPriorityCountry = if (priorityCountries.contains(b.countryCode)) 1 else 2
+                if (aPriorityCountry != bPriorityCountry) {
+                    return@sortedWith aPriorityCountry.compareTo(bPriorityCountry)
+                }
+
+                // Приоритет 2: Столицы
                 val aIsCapital = a.isCapital()
                 val bIsCapital = b.isCapital()
                 if (aIsCapital != bIsCapital) {
                     return@sortedWith if (aIsCapital) -1 else 1
                 }
 
-                // Приоритет 2: Точное совпадение с запросом
+                // Приоритет 3: Точное совпадение с запросом
                 val aExactMatch = a.name.equals(query, ignoreCase = true)
                 val bExactMatch = b.name.equals(query, ignoreCase = true)
                 if (aExactMatch != bExactMatch) {
                     return@sortedWith if (aExactMatch) -1 else 1
                 }
 
-                // Приоритет 3: Начинается с запроса
+                // Приоритет 4: Начинается с запроса
                 val aStarts = a.name.startsWith(query, ignoreCase = true)
                 val bStarts = b.name.startsWith(query, ignoreCase = true)
                 if (aStarts != bStarts) {
                     return@sortedWith if (aStarts) -1 else 1
                 }
 
-                // Приоритет 4: Россия и США в приоритете
-                val aPriority = when (a.countryCode) { "RU" -> 1; "US" -> 2; else -> 3 }
-                val bPriority = when (b.countryCode) { "RU" -> 1; "US" -> 2; else -> 3 }
-                if (aPriority != bPriority) {
-                    return@sortedWith aPriority.compareTo(bPriority)
+                // Приоритет 5: Специальные случаи (исторические названия)
+                val aIsSpecial = knownCityMapping.keys.contains(a.name)
+                val bIsSpecial = knownCityMapping.keys.contains(b.name)
+                if (aIsSpecial != bIsSpecial) {
+                    return@sortedWith if (aIsSpecial) -1 else 1
                 }
 
-                // Приоритет 5: Популярность (по населению или просто по алфавиту)
+                // Приоритет 6: По населению (чем больше, тем выше, null в конец)
+                val aPop = a.population ?: 0
+                val bPop = b.population ?: 0
+                if (aPop != bPop) {
+                    return@sortedWith bPop.compareTo(aPop)
+                }
+
+                // Приоритет 7: Россия в приоритете (без США, чтобы русские города были выше)
+                val aIsRussia = a.countryCode == "RU"
+                val bIsRussia = b.countryCode == "RU"
+                if (aIsRussia != bIsRussia) {
+                    return@sortedWith if (aIsRussia) -1 else 1
+                }
+
+                // По алфавиту
                 a.name.compareTo(b.name)
             }
 
-            val cities = sortedResults.take(10).map { result ->
+            val cities = sortedResults.take(12).map { result ->
+                // Применяем преобразование названий (Молотов -> Пермь)
+                val displayName = knownCityMapping[result.name] ?: result.name
                 CityInfo(
-                    name = result.name,
-                    fullName = buildFullName(result),  // без звёздочки
+                    name = displayName,
+                    fullName = buildFullName(result, displayName),
                     latitude = result.latitude,
                     longitude = result.longitude,
-                    isCapital = result.isCapital()
+                    isCapital = result.isCapital(),
+                    isRegionalCenter = result.isRegionalCenter(),
+                    adminLevelIcon = result.getAdminLevelIcon()
                 )
             }
 
@@ -88,9 +124,10 @@ class WeatherRepositoryImpl(
         }
     }
 
-    private fun buildFullName(result: GeocodingResult): String {
+    private fun buildFullName(result: GeocodingResult, displayName: String): String {
         return buildString {
-            append(result.name)
+            // Используем displayName если он отличается от оригинального
+            append(displayName)
             if (!result.region.isNullOrEmpty()) {
                 append(", ${result.region}")
             }

@@ -71,6 +71,11 @@ fun WeatherScreen() {
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
+                                        text = city.adminLevelIcon,  // иконка типа города
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
                                         text = if (city.isCapital) "⭐ " else "  ",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.primary
@@ -81,7 +86,7 @@ fun WeatherScreen() {
                                     )
                                 }
                                 Text(
-                                    text = city.fullName,  // здесь нет звёздочки
+                                    text = city.fullName,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

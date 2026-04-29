@@ -5,5 +5,7 @@ data class CityInfo(
     val fullName: String,
     val latitude: Double,
     val longitude: Double,
-    val isCapital: Boolean = false
+    val isCapital: Boolean = false,
+    val isRegionalCenter: Boolean = false,
+    val adminLevelIcon: String = "📍"
 )

@@ -28,9 +28,23 @@ data class GeocodingResult(
     val latitude: Double,
     val longitude: Double,
     @SerializedName("feature_code")
-    val featureCode: String? = null
+    val featureCode: String? = null,
+    val population: Int? = null
 )
 
 fun GeocodingResult.isCapital(): Boolean {
-    return featureCode == "PPLC" // PPLC = Capital of a political entity
+    return featureCode == "PPLC"
+}
+
+fun GeocodingResult.isRegionalCenter(): Boolean {
+    return featureCode == "PPLA" // Центр региона (области, края)
+}
+
+
+fun GeocodingResult.getAdminLevelIcon(): String {
+    return when (featureCode) {
+        "PPLC" -> "🏛️"  // Столица страны
+        "PPLA" -> "🏢"   // Центр региона
+        else -> "📍"      // Обычный город
+    }
 }
