@@ -16,4 +16,7 @@ class SavedCitiesRepository(
     }
 
     suspend fun removeCity(cityId: Int) = cityDao.deleteCity(cityId)
+    suspend fun isCitySaved(name: String): Boolean = cityDao.isCitySaved(name) > 0
+
+
 }
