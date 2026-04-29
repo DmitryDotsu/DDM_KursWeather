@@ -8,7 +8,7 @@ interface GeocodingApiService {
     @GET("v1/search")
     suspend fun searchLocation(
         @Query("name") name: String,
-        @Query("count") count: Int = 10,
+        @Query("count") count: Int = 30,
         @Query("language") language: String = "ru"
     ): GeocodingResponse
 }
@@ -23,8 +23,14 @@ data class GeocodingResult(
     @SerializedName("admin1")
     val region: String? = null,
     val country: String,
+    @SerializedName("country_code")
+    val countryCode: String? = null,
     val latitude: Double,
     val longitude: Double,
     @SerializedName("feature_code")
     val featureCode: String? = null
 )
+
+fun GeocodingResult.isCapital(): Boolean {
+    return featureCode == "PPLC" // PPLC = Capital of a political entity
+}

@@ -4,5 +4,6 @@ data class CityInfo(
     val name: String,
     val fullName: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val isCapital: Boolean = false
 )

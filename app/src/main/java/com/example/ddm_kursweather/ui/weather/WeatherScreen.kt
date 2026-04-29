@@ -69,12 +69,19 @@ fun WeatherScreen() {
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.Start
                             ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = if (city.isCapital) "⭐ " else "  ",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = city.name,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
                                 Text(
-                                    text = city.name,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    text = city.fullName,
+                                    text = city.fullName,  // здесь нет звёздочки
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -118,7 +125,7 @@ fun WeatherScreen() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "🌍 Введите название города на любом языке",
+                        text = "🌍 Введите название города",
                         modifier = Modifier.padding(16.dp)
                     )
                 }
