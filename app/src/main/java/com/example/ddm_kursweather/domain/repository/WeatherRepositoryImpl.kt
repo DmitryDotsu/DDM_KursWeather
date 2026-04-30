@@ -33,7 +33,7 @@ class WeatherRepositoryImpl(
 
     override suspend fun searchCity(query: String): Result<List<CityInfo>> {
         return try {
-            if (query.length < 2) {
+            if (query.length < 3) { //ответ всеравно получим на запрос от трех символов (два крайняя редкость)
                 return Result.success(emptyList())
             }
 

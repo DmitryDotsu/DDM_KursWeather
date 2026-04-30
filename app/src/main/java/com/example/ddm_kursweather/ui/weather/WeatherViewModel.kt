@@ -28,7 +28,7 @@ class WeatherViewModel(
     val searchResults: StateFlow<List<CityInfo>> = _searchResults.asStateFlow()
 
     fun searchCity(query: String) {
-        if (query.length < 2) {
+        if (query.length < 3) {//ответ всеравно получим на запрос от трех символов (два крайняя редкость)
             _searchResults.value = emptyList()
             return
         }
