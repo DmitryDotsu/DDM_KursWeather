@@ -1,3 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DDM_KursWeather</string>
+    <string name="app_name">Weather Forecast</string>
+    <string name="search_city_hint">City name</string>
+    <string name="search_title">Search Weather</string>
+    <string name="favorites_title">Favorite Cities</string>
+    <string name="no_favorites">⭐ No saved cities\nTap "Save to favorites" in search</string>
+    <string name="save_to_favorites">Save to favorites</string>
+    <string name="in_favorites">In favorites</string>
+    <string name="favorites">Favorites</string>
+    <string name="back">Back</string>
+    <string name="enter_city">🌍 Enter city name</string>
+    <string name="weather_error">❌ Error</string>
+    <string name="loading_error">Loading error</string>
+    <string name="search_error">City search error</string>
+    <string name="delete">Delete</string>
+    <string name="loading_favorites_error">Error loading favorites</string>
 </resources>
