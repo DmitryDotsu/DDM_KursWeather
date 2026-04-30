@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Прогноз погоды</string>
+    <string name="search_city_hint">Название города</string>
+    <string name="search_title">Поиск погоды</string>
+    <string name="favorites_title">Избранные города</string>
+    <string name="no_favorites">⭐ Нет сохранённых городов\nВ поиске нажмите «Сохранить в избранное»</string>
+    <string name="save_to_favorites">Сохранить в избранное</string>
+    <string name="in_favorites">В избранном</string>
+    <string name="favorites">Избранное</string>
+    <string name="back">Назад</string>
+    <string name="enter_city">🌍 Введите название города</string>
+    <string name="weather_error">❌ Ошибка</string>
+    <string name="loading_error">Ошибка загрузки</string>
+    <string name="search_error">Ошибка поиска городов</string>
+    <string name="delete">Удалить</string>
+    <string name="loading_favorites_error">Ошибка загрузки избранного</string>
+</resources>

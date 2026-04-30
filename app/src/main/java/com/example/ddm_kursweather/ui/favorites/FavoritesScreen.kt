@@ -5,14 +5,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ddm_kursweather.R
 import com.example.ddm_kursweather.data.local.entity.SavedCity
 import com.example.ddm_kursweather.data.repository.SavedCitiesRepository
 
@@ -24,14 +26,12 @@ fun FavoritesScreen(
     onCityClick: (SavedCity) -> Unit = {},
     onBack: () -> Unit = {}
 ) {
-    // Ключ для принудительного обновления
     val viewModel: FavoritesViewModel = viewModel(
         factory = FavoritesViewModelFactory(savedCitiesRepository)
     )
 
     val uiState by viewModel.uiState.collectAsState()
 
-    // Обновляем список
     LaunchedEffect(refreshTrigger) {
         viewModel.loadFavorites()
     }
@@ -39,10 +39,13 @@ fun FavoritesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Избранные города") },
+                title = { Text(stringResource(R.string.favorites_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
@@ -62,7 +65,7 @@ fun FavoritesScreen(
                 is FavoritesUiState.Success -> {
                     if (state.cities.isEmpty()) {
                         Text(
-                            text = "⭐ Нет сохранённых городов\nВ поиске нажмите «Сохранить в избранное»",
+                            text = stringResource(R.string.no_favorites),
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .padding(16.dp),
@@ -79,7 +82,6 @@ fun FavoritesScreen(
                                     city = city,
                                     onDelete = {
                                         viewModel.removeCity(city.id)
-                                        // Небольшая задержка перед обновлением
                                         viewModel.loadFavorites()
                                     },
                                     onClick = { onCityClick(city) }
@@ -90,7 +92,7 @@ fun FavoritesScreen(
                 }
                 is FavoritesUiState.Error -> {
                     Text(
-                        text = "❌ Ошибка: ${state.message}",
+                        text = "${stringResource(R.string.loading_favorites_error)}: ${state.message}",
                         modifier = Modifier.align(Alignment.Center),
                         color = MaterialTheme.colorScheme.error
                     )
@@ -136,7 +138,7 @@ fun FavoriteCityCard(
             IconButton(onClick = onDelete) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Удалить",
+                    contentDescription = stringResource(R.string.delete),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

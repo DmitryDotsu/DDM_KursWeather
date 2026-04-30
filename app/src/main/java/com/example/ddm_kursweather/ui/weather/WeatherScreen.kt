@@ -11,9 +11,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ddm_kursweather.R
 import com.example.ddm_kursweather.data.api.RetrofitClient
 import com.example.ddm_kursweather.data.local.entity.SavedCity
 import com.example.ddm_kursweather.data.models.CurrentWeather
@@ -44,7 +46,6 @@ fun WeatherScreen(
     var textFieldValue by remember { mutableStateOf("") }
     var showSuggestions by remember { mutableStateOf(false) }
 
-    //  Bundle для сохранения состояния при повороте и навигации
     val bundle = remember { Bundle() }
 
     var selectedCityName by remember { mutableStateOf(bundle.getString("selectedCityName") ?: "") }
@@ -54,7 +55,6 @@ fun WeatherScreen(
     var isSaved by remember { mutableStateOf(false) }
     var lastWeatherCityName by remember { mutableStateOf("") }
 
-    // Восстанавливаем City из Bundle
     val selectedCity = if (selectedCityName.isNotEmpty()) {
         CityInfo(
             name = selectedCityName,
@@ -67,7 +67,6 @@ fun WeatherScreen(
         )
     } else null
 
-    // Сохраняем в Bundle при изменениях
     LaunchedEffect(selectedCityName, selectedCityFullName, selectedCityLat, selectedCityLon) {
         bundle.putString("selectedCityName", selectedCityName)
         bundle.putString("selectedCityFullName", selectedCityFullName)
@@ -75,14 +74,12 @@ fun WeatherScreen(
         bundle.putDouble("selectedCityLon", selectedCityLon)
     }
 
-    // Проверяем, сохранён ли город
     LaunchedEffect(selectedCity) {
         if (selectedCity != null && isCitySaved != null) {
             isSaved = isCitySaved(selectedCity.name)
         }
     }
 
-    // Автозагрузка города из избранного
     LaunchedEffect(selectedCityFromFavorites) {
         if (selectedCityFromFavorites != null) {
             textFieldValue = selectedCityFromFavorites.name
@@ -105,7 +102,6 @@ fun WeatherScreen(
         }
     }
 
-    // При успешной загрузке погоды сохраняем название города
     LaunchedEffect(uiState) {
         if (uiState is WeatherUiState.Success && lastWeatherCityName.isEmpty()) {
             val successState = uiState as WeatherUiState.Success
@@ -120,12 +116,12 @@ fun WeatherScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Поиск погоды") },
+                title = { Text(stringResource(R.string.search_title)) },
                 actions = {
                     IconButton(onClick = { onShowFavorites?.invoke() }) {
                         Icon(
                             imageVector = Icons.Default.Favorite,
-                            contentDescription = "Избранное"
+                            contentDescription = stringResource(R.string.favorites)
                         )
                     }
                 }
@@ -145,7 +141,7 @@ fun WeatherScreen(
                     viewModel.searchCity(it)
                     showSuggestions = it.isNotEmpty()
                 },
-                label = { Text("Название города") },
+                label = { Text(stringResource(R.string.search_city_hint)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -153,9 +149,7 @@ fun WeatherScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (showSuggestions && searchResults.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Card(modifier = Modifier.fillMaxWidth()) {
                     LazyColumn {
                         items(searchResults) { city ->
                             TextButton(
@@ -245,7 +239,8 @@ fun WeatherScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    if (isSaved) "В избранном" else "Сохранить в избранное"
+                                    if (isSaved) stringResource(R.string.in_favorites)
+                                    else stringResource(R.string.save_to_favorites)
                                 )
                             }
                         }
@@ -259,18 +254,16 @@ fun WeatherScreen(
                         )
                     ) {
                         Text(
-                            text = "❌ ${state.message}",
+                            text = "${stringResource(R.string.weather_error)} ${state.message}",
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
                 }
                 WeatherUiState.Initial -> {
-                    Card(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    Card(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "🌍 Введите название города",
+                            text = stringResource(R.string.enter_city),
                             modifier = Modifier.padding(16.dp)
                         )
                     }
@@ -280,6 +273,7 @@ fun WeatherScreen(
     }
 }
 
+// WeatherContent и getWeatherIcon остаются без изменений
 @Composable
 fun WeatherContent(cityName: String, weather: CurrentWeather) {
     Card(
